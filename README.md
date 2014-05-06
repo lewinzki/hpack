@@ -43,6 +43,15 @@ This library is developed using Rust 0.10.
 - [ ] Huffman encoding and decoding
 - [ ] Change *header table size* of the encoding context
 
+## Background
+We are two students from the University of Copenhagen writing a bachelor thesis about designing and implementing an [HTTP/2](http://tools.ietf.org/html/draft-ietf-httpbis-http2-12) library in [Rust](http://www.rust-lang.org/). As a part of the project we have created this HPACK library. The goal of the project is not to make a complete implementation, but rather to focus on some specific chosen aspects. However, if it could be of any use to others, perhaps just as inspiration, that would be great.
+
+Any feedback is welcome!
+
+
+## Acknowledgement
+Throughout the project, we got a little inspiration from [another HPACK implementation made by Jxck](https://github.com/Jxck/hpack), thank you!
+
 ## License
 This library is dual licensed under the MIT license and the Apache license (version 2.0).  
 See LICENSE-APACHE and LICENSE-MIT for details.
