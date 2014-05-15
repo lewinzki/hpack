@@ -40,7 +40,7 @@ The implementation is not entirely complete. See the *Missing features* section,
 This library is developed using Rust 0.10.
 
 ## Missing features
-- [ ] Huffman encoding and decoding
+- [x] Huffman encoding and decoding
 - [ ] Change *header table size* of the encoding context
 
 ## Background
