@@ -9,6 +9,7 @@ use reference_set::ReferenceSet;
 use integer_representation::decode_int;
 use header_field::HeaderField;
 use static_header_table::StaticHeaderTable;
+use huffman::huffman_decoder::HuffmanDecoder;
 
 // Macro rule to unwrap an option
 // If None, the function using this macro will return with None
@@ -27,7 +28,8 @@ pub struct Decoder {
     priv header_table:        ~HeaderTable,
     priv reference_set:       ~ReferenceSet,
     priv header_set:          ~HeaderSet,
-    priv static_header_table: ~StaticHeaderTable
+    priv static_header_table: ~StaticHeaderTable,
+    priv huffman_decoder:     HuffmanDecoder,
 }
 
 impl Decoder {
@@ -37,7 +39,8 @@ impl Decoder {
             header_table:        ~HeaderTable::new(DEFAULT_HEADER_TABLE_SIZE),
             reference_set:       ~ReferenceSet::new(),
             header_set:          ~HeaderSet::new(),
-            static_header_table: ~StaticHeaderTable::new()
+            static_header_table: ~StaticHeaderTable::new(),
+            huffman_decoder:     HuffmanDecoder::new(),
         }
     }
 
@@ -236,7 +239,7 @@ impl Decoder {
     /*
      * Reads a string from the header block (and consumes it)
      */
-    fn read_string(&self, mut header_block: ~[u8]) -> Option<(~[u8], ~[u8])> { 
+    fn read_string(&mut self, mut header_block: ~[u8]) -> Option<(~[u8], ~[u8])> { 
         let mut string;        
 
         let huffman_encoded = header_block[0] & 0x80 == 0x80; // 1XXX XXXX & 1000 0000 == 1000 0000
@@ -244,14 +247,14 @@ impl Decoder {
         header_block = buffer;
 
         if huffman_encoded {
-            // TODO: Huffman decoding
-            return None;
+            let decoded_string_opt = self.huffman_decoder.decode(header_block.slice(0, string_length).to_owned());
+            string = propagate_err!(decoded_string_opt);
         } else {
             string = header_block.slice(0, string_length).to_owned();
+        }
 
-            for _ in range(0, string_length) {
-                header_block.shift();
-            }
+        for _ in range(0, string_length) {
+            header_block.shift();
         }
 
         Some((string, header_block))

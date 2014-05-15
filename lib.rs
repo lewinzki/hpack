@@ -25,5 +25,11 @@ mod integer_representation;
 mod static_header_table;
 mod representation;
 mod representation_encoder;
+mod huffman {
+    mod huffman_tree;
+    mod huffman_codes;
+    pub mod huffman_encoder;
+    pub mod huffman_decoder;
+}
 
 mod test;

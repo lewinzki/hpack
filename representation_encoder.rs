@@ -36,14 +36,13 @@ impl Representation for IndexedLiteral {
 
         buffer[0] = buffer[0] | mask;
 
+        let mut value_length = encode_int(self.value_length, 7);
         if self.value_huffman {
-            // TODO: Huffman
-            fail!("Huffman not implemented");
-        } else {
-            let value_length = encode_int(self.value_length, 7);
-            buffer.push_all_move(value_length);
-            buffer.push_all_move(self.value_string.clone());
-        }
+            value_length[0] |= 0x80; // Flip the first bit
+        } 
+
+        buffer.push_all_move(value_length);
+        buffer.push_all_move(self.value_string.clone());
 
         buffer
     }
@@ -63,23 +62,19 @@ impl Representation for NamedLiteral {
             buffer.push(0x10); // 0001 0000
         }
 
+        let mut name_length = encode_int(self.name_length, 7);
         if self.name_huffman {
-            // TODO: Huffman
-            fail!("Huffman not implemented");
-        } else {
-            let name_length = encode_int(self.name_length, 7);
-            buffer.push_all_move(name_length);
-            buffer.push_all_move(self.name_string.clone());
+            name_length[0] |= 0x80;
         }
+        buffer.push_all_move(name_length);
+        buffer.push_all_move(self.name_string.clone());
 
+        let mut value_length = encode_int(self.value_length, 7);
         if self.value_huffman {
-            // TODO: Huffman
-            fail!("Huffman not implemented");
-        } else {
-            let value_length = encode_int(self.value_length, 7);
-            buffer.push_all_move(value_length);
-            buffer.push_all_move(self.value_string.clone());
+            value_length[0] |= 0x80;
         }
+        buffer.push_all_move(value_length);
+        buffer.push_all_move(self.value_string.clone());
 
         buffer
     }
