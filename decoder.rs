@@ -88,9 +88,15 @@ impl Decoder {
     }
 
     fn decode_indexed_literal(&mut self, mut header_block: ~[u8]) -> Option<~[u8]> {
-        let indexing = header_block[0] & 0xC0 == 0x00;
+        let indexing = header_block[0] & 0x40 == 0x40;
 
-        let (index, buffer) = propagate_err!(decode_int(header_block, 6));
+        let index_size =
+            if indexing {
+                6
+            } else {
+                4
+            };
+        let (index, buffer) = propagate_err!(decode_int(header_block, index_size));
         let (value, buffer) = propagate_err!(self.read_string(buffer));
         header_block = buffer;
 
@@ -123,7 +129,7 @@ impl Decoder {
     }
 
     fn decode_string_literal(&mut self, mut header_block: ~[u8]) -> Option<~[u8]> {
-        let indexing = header_block.shift().unwrap() == 0x00; // Remove the first octet and set indexing to true if 0000 0000 
+        let indexing = header_block.shift().unwrap() == 0x40; // Remove the first octet and set indexing to true if 0100 0000 
 
         let (name, buffer)  = propagate_err!(self.read_string(header_block));
         let (value, buffer) = propagate_err!(self.read_string(buffer));
@@ -301,7 +307,7 @@ mod decode_test {
         let value = ~"bar";
         let name_length = encode_int(name.clone().len(), 7);
         let value_length = encode_int(value.clone().len(), 7);
-        let mut frame1 = ~[0];
+        let mut frame1 = ~[0x40];
         frame1.push_all_move(name_length);
         frame1.push_all_move(name.into_bytes());
         frame1.push_all_move(value_length);
@@ -319,6 +325,7 @@ mod decode_test {
         let value = ~"baz";
         let value_length = encode_int(value.clone().len(), 7);
         let mut frame2: ~[u8] = ~[];
+        frame2.push_all_move(~[0x81]);
         frame2.push_all_move(index);
         frame2.push_all_move(value_length);
         frame2.push_all_move(value.into_bytes());
