@@ -14,10 +14,12 @@ extern crate collections;
 pub use self::decoder::Decoder;
 pub use self::encoder::Encoder;
 pub use self::header_field::HeaderField;
+pub use self::header_collection::HeaderCollection;
 
 mod encoder;
 mod decoder;
 mod header_field;
+mod header_collection;
 mod header_table;
 mod header_set;
 mod reference_set;

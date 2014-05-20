@@ -25,9 +25,8 @@ mod test {
         let hs0_encoded = hpack_encoder.encode(hb0);
         let hs0_decoded = hpack_decoder.decode(hs0_encoded.clone()).unwrap();
 
-        assert!(hs0_decoded.contains(&h0));
-        assert!(hs0_decoded.contains(&h1));
-        assert!(hs0_decoded.len() == 2);
+        assert!(hs0_decoded.get(&h0.key)[0] == h0.value);
+        assert!(hs0_decoded.get(&h1.key)[0] == h1.value);
 
 
         /*
@@ -45,10 +44,9 @@ mod test {
         let hs1_encoded = hpack_encoder.encode(hb1);
         let hs1_decoded = hpack_decoder.decode(hs1_encoded.clone()).unwrap();
 
-        assert!(hs1_decoded.contains(&h2));
-        assert!(hs1_decoded.contains(&h3));
-        assert!(hs1_decoded.contains(&h4));
-        assert!(hs1_decoded.len() == 3);
+        assert!(hs1_decoded.get(&h2.key)[0] == h2.value);
+        assert!(hs1_decoded.get(&h3.key)[0] == h3.value);
+        assert!(hs1_decoded.get(&h4.key)[0] == h4.value);
 
         /*
          * Test a mix of header fields. Some in header table, some in static header table etc.
@@ -83,40 +81,23 @@ mod test {
         let hs2_encoded = hpack_encoder.encode(hb2);
         let hs2_decoded = hpack_decoder.decode(hs2_encoded.clone()).unwrap();
 
-        assert!(hs2_decoded.contains(&h5));
-        assert!(hs2_decoded.contains(&h6));
-        assert!(hs2_decoded.contains(&h7));
-        assert!(hs2_decoded.contains(&h8));
-        assert!(hs2_decoded.contains(&h9));
-        assert!(hs2_decoded.contains(&h10));
-        assert!(hs2_decoded.contains(&h11));
-        assert!(hs2_decoded.contains(&h12));
-        assert!(hs2_decoded.contains(&h13));
-        assert!(hs2_decoded.contains(&h14));
-        assert!(hs2_decoded.contains(&h15));
-        assert!(hs2_decoded.contains(&h16));
-        assert!(hs2_decoded.len() == 12);
+        assert!(hs2_decoded.get(&h5.key)[0] == h5.value);
+        assert!(hs2_decoded.get(&h6.key)[0] == h6.value);
+        assert!(hs2_decoded.get(&h7.key)[0] == h7.value);
+        assert!(hs2_decoded.get(&h8.key)[0] == h8.value);
+        assert!(hs2_decoded.get(&h9.key)[0] == h9.value);
+        assert!(hs2_decoded.get(&h10.key)[0] == h10.value);
+        assert!(hs2_decoded.get(&h11.key).len() == 2);
+        assert!(hs2_decoded.get(&h12.key)[0] == h12.value);
+        assert!(hs2_decoded.get(&h13.key)[0] == h13.value);
+        assert!(hs2_decoded.get(&h14.key)[0] == h14.value);
+        assert!(hs2_decoded.get(&h15.key)[0] == h15.value);
+        assert!(hs2_decoded.get(&h16.key)[0] == h16.value);
     }
 
     #[test]
     fn test_bug() {
         let mut hpack_decoder = ~Decoder::new();
-        // let mut hpack_encoder = ~Encoder::new();
-
-        // let mut hb0 = ~HashSet::new();
-        // let h0 = HeaderField::new(~":authority", ~"Respect my authoritah!!!!");
-        // hb0.insert(h0.clone());
-
-        // let hs0_encoded = hpack_encoder.encode(hb0.clone());
-        // let hs0_decoded = hpack_decoder.decode(hs0_encoded.clone()).unwrap();
-
-        // let hs1_encoded = hpack_encoder.encode(hb0);
-        // let hs1_decoded = hpack_decoder.decode(hs1_encoded.clone()).unwrap();
-
-        // println!("{}", hs1_encoded.to_str());
-        // println!("{}\n\n{}", hs0_decoded.contains(&h0), hs1_decoded.contains(&h0));
-
-        // fail!();
 
         let h = HeaderField::new(~":authority", ~"Respect my authoritah!!!!");
         let mut index = encode_int(1, 6);
@@ -127,13 +108,12 @@ mod test {
         index[0] |= 64;
         frame.push_all_move(index);
         frame.push_all_move(value_length);
-        frame.push_all_move(value.into_bytes());
+        frame.push_all_move(value.clone().into_bytes());
 
         let header_fields = hpack_decoder.decode(frame.clone()).unwrap();
         let header_fields2 = hpack_decoder.decode(~[]).unwrap();
 
-        println!("{}\n\n{}", header_fields.contains(&h), header_fields2.contains(&h));
-
-        //fail!();
+        assert!(header_fields.get(&h.key)[0] == value.clone());
+        assert!(header_fields2.get(&h.key)[0] == value);
     }
 }

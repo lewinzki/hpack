@@ -1,13 +1,13 @@
 // Comments enclosed in quotes are citations from the HPACK draft:
 // http://tools.ietf.org/html/draft-ietf-httpbis-header-compression-07
 use std::str;
-use collections::HashSet;
 
 use header_table::{HeaderTable, DEFAULT_HEADER_TABLE_SIZE};
 use header_set::HeaderSet;
 use reference_set::ReferenceSet;
 use integer_representation::decode_int;
 use header_field::HeaderField;
+use header_collection::HeaderCollection;
 use static_header_table::StaticHeaderTable;
 use huffman::huffman_decoder::HuffmanDecoder;
 
@@ -45,7 +45,7 @@ impl Decoder {
     }
 
     /// Decode a headerblock into a set of header fields. Return `None` if a decoding error has occurred.
-    pub fn decode(&mut self, mut header_block: ~[u8]) -> Option<~HashSet<HeaderField>> {
+    pub fn decode(&mut self, mut header_block: ~[u8]) -> Option<HeaderCollection> {
         // TODO: Should we just empty the existing instead (memory leak) ?
         self.header_set = ~HeaderSet::new();
         self.reference_set.reset();
@@ -84,7 +84,11 @@ impl Decoder {
         }
 
         // Return the header fields in the header_set
-        Some(self.header_set.get_header_fields())
+        let mut hc = HeaderCollection::new();
+        for hf in self.header_set.get_header_fields().iter() {
+            hc.add(hf.key.clone(), hf.value.clone());
+        }
+        Some(hc)
     }
 
     fn decode_indexed_literal(&mut self, mut header_block: ~[u8]) -> Option<~[u8]> {
@@ -298,7 +302,7 @@ mod decode_test {
 
         let header_fields = decoder.decode(frame0).unwrap();
         let h0 = HeaderField::new(~":path", ~"/index.html");
-        assert!(header_fields.contains(&h0));
+        assert!(header_fields.get(&h0.key)[0] == h0.value);
 
 
 
@@ -315,8 +319,8 @@ mod decode_test {
 
         let header_fields = decoder.decode(frame1).unwrap();
 
-        assert!(header_fields.contains(&h0));
-        assert!(header_fields.contains(&h1));
+        assert!(header_fields.get(&h0.key)[0] == h0.value);
+        assert!(header_fields.get(&h1.key)[0] == h1.value);
 
 
 
@@ -332,8 +336,9 @@ mod decode_test {
 
         let header_fields = decoder.decode(frame2).unwrap();
 
-        assert!(header_fields.contains(&h0));
-        assert!(header_fields.contains(&h2));
-        assert!(!header_fields.contains(&h1));
+        assert!(header_fields.get(&h0.key)[0] == h0.value);
+        assert!(header_fields.get(&h2.key)[0] == h2.value);
+        println!("{}", header_fields.get(&h1.key).to_str());
+        assert!(header_fields.get(&h1.key).len() == 1 && header_fields.get(&h1.key)[0] == h2.value);
     }
 }
