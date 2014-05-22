@@ -76,9 +76,11 @@ impl Decoder {
         // 3.2.2.  Reference Set Emission
         //
         // Emit all header fields in the reference set that are not already emitted
-        for (_, value) in self.reference_set.references.iter() {
-            match value.clone() {
-                (hf, false) => self.header_set.emit(hf.clone()),
+        for (hf, emit) in self.reference_set.references.iter() {
+            match *emit {
+                false => {
+                    self.header_set.emit(hf.clone());
+                },
                 _ => {}
             } 
         }
@@ -123,6 +125,7 @@ impl Decoder {
             self.header_set.emit(updated_header_field.clone());
             self.header_table.add(updated_header_field.clone());
             self.reference_set.add(updated_header_field.clone(), true);
+
 
             self.evict();
         } else {

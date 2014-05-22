@@ -33,10 +33,8 @@ impl Encoder {
         let mut ref_set: HashSet<HeaderField> = HashSet::new();
         let mut header_block: ~[u8] = ~[];
 
-        for (_, value) in self.reference_set.references.iter() {
-            match value.clone() {
-                (hf, _) => { ref_set.insert(hf); }
-            }
+        for (hf, _) in self.reference_set.references.iter() {
+            ref_set.insert(hf.clone());
         }
 
         let mut to_add = fields.difference(&ref_set);  // Creates an iterator containing the difference

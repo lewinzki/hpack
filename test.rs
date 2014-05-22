@@ -6,6 +6,7 @@ mod test {
     use header_field::HeaderField;
     use encoder::Encoder;
     use decoder::Decoder;
+    use huffman::huffman_decoder::HuffmanDecoder;
 
     #[test]
     fn test_hpack() { 
@@ -116,4 +117,75 @@ mod test {
         assert!(header_fields.get(&h.key)[0] == value.clone());
         assert!(header_fields2.get(&h.key)[0] == value);
     }
+
+    // #[test]
+    // fn test_bug2() {
+    //     let mut hpack_decoder = ~Decoder::new();
+    //     let mut hpack_encoder = ~Encoder::new();
+
+    //     let h0 = HeaderField::new(~":method", ~"GET");
+    //     let h1 = HeaderField::new(~":scheme", ~"http");
+    //     let h2 = HeaderField::new(~":authority", ~"localhost");
+    //     let h3 = HeaderField::new(~":path", ~"/armorgames/4f60030d4981786f4951ff74a396dc82.png");
+
+    //     let mut hb0 = ~HashSet::new();
+    //     hb0.insert(h0.clone());
+    //     hb0.insert(h1.clone());
+    //     hb0.insert(h2.clone());
+    //     hb0.insert(h3.clone());
+
+    //     let enc_frame0 = hpack_encoder.encode(hb0.clone());
+    //     let enc_frame1 = hpack_encoder.encode(hb0);
+
+    //     let mut index0 = encode_int(2, 7);
+    //     index0[0] |= 128;
+
+
+    //     let mut index1 = encode_int(7, 6);
+    //     index1[0] |= 128;
+
+    //     let mut index2 = encode_int(3, 6);
+    //     index2[0] |= 64;
+    //     let value2 = ~"localhost";
+    //     let value_length2 = encode_int(value2.clone().len(), 7);
+    //     let mut frame2: ~[u8] = index2 + value_length2 + value2.clone().into_bytes();
+
+    //     let mut index3 = encode_int(7, 6);
+    //     index3[0] |= 64;
+    //     let value3 = ~"/armorgames/4f60030d4981786f4951ff74a396dc82.png";
+    //     let value_length3 = encode_int(value3.clone().len(), 7);
+    //     let mut frame3: ~[u8] = index3 + value_length3 + value3.clone().into_bytes();
+
+    //     let frame = index0 + index1 + frame2 + frame3;
+
+    //     //let header_fields0 = hpack_decoder.decode(frame.clone()).unwrap();
+    //     //let header_fields1 = hpack_decoder.decode(~[]).unwrap();
+
+    //     let mut huff = HuffmanDecoder::new();
+    //     let bla = huff.decode(~[58, 112, 181, 184, 84, 155, 87, 137, 255]);
+    //     println!("huff: {}", bla.unwrap());
+        
+    //     let test0: ~[u8] = ~[130, 135, 67, 135, 177, 170, 77, 149, 183, 23, 127, 71, 137, 58, 112, 181, 184, 84, 155, 87, 137, 255];
+    //     let test1: ~[u8] = ~[65, 162, 58, 112, 181, 184, 84, 155, 87, 137, 224, 225, 16, 2, 2, 152, 37, 144, 99, 146, 46, 16, 75, 8, 240, 225, 28, 9, 68, 177, 82, 169, 9, 251, 238, 171, 130];
+    //     let header_fields0 = hpack_decoder.decode(test0.clone()).unwrap();
+    //     let header_fields1 = hpack_decoder.decode(test1.clone()).unwrap();
+    //     let header_fields2 = hpack_decoder.decode(~[]).unwrap();
+
+    //     //println!("{}", enc_frame0.to_str());
+    //     //println!("{}", enc_frame1.to_str());
+    //     println!("{}, {}, {}, {}", header_fields0.get(&h0.key).to_str(),
+    //                                header_fields0.get(&h1.key).to_str(), 
+    //                                header_fields0.get(&h2.key).to_str(), 
+    //                                header_fields0.get(&h3.key).to_str());
+    //     println!("{}, {}, {}, {}", header_fields1.get(&h0.key).to_str(),
+    //                                header_fields1.get(&h1.key).to_str(), 
+    //                                header_fields1.get(&h2.key).to_str(), 
+    //                                header_fields1.get(&h3.key).to_str());
+    //     println!("{}, {}, {}, {}", header_fields2.get(&h0.key).to_str(),
+    //                                header_fields2.get(&h1.key).to_str(), 
+    //                                header_fields2.get(&h2.key).to_str(), 
+    //                                header_fields2.get(&h3.key).to_str());
+
+    //     fail!("");
+    // }
 }
